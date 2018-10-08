@@ -78,7 +78,7 @@ class CompassGestureView: UIView,UIGestureRecognizerDelegate {
         animation.toValue = Double.pi * 10
         animation.duration = 2.5;
         animation.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseOut)
-        self.imageView.layer.add(animation, forKey: "rotateAnimation")
+        self.imageView.layer.add(animation, forKey: "rotateAnimationSelf")
     }
     
 //    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -106,9 +106,7 @@ class CompassGestureView: UIView,UIGestureRecognizerDelegate {
         let unitRadians = CGFloat(Double.pi * 2 / 12)
         let newRadians = fabs(radians) + unitRadians * 0.5
         var index = Int((newRadians / unitRadians).truncatingRemainder(dividingBy: 12))
-        print("radians\(radians)  index\(index)")
         index = radians < 0 && index != 0 ? 12 - index : index
-        print("radians\(radians)  index\(index)")
         self.starIcon.image = UIImage.init(named:  String.init(format: "zodiac_%02d", index))
 
     }
@@ -135,7 +133,7 @@ class CompassGestureView: UIView,UIGestureRecognizerDelegate {
         newRadians = CGFloat(quotient) * unitRadians
         
         //动画前关闭交互
-        self.isUserInteractionEnabled = false
+//        self.isUserInteractionEnabled = false
         
         let animation = CABasicAnimation.init(keyPath: "transform.rotation.z")
         animation.fromValue = radians
@@ -195,6 +193,14 @@ class CompassGestureView: UIView,UIGestureRecognizerDelegate {
         fatalError("init(coder:) has not been implemented")
     }
     
+    //增加转动中的停止动画交互
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let animation = imageView.layer.animation(forKey: "rotateAnimation")
+        if animation != nil {
+            self.imageView.layer.removeAllAnimations()
+        }
+    }
+    
 }
 
 extension CompassGestureView: CAAnimationDelegate {
@@ -204,7 +210,7 @@ extension CompassGestureView: CAAnimationDelegate {
         //移除动画
         self.imageView.layer.removeAllAnimations()
         //恢复交互
-        self.isUserInteractionEnabled = true
+//        self.isUserInteractionEnabled = true
         self.fixStarIndex()
 
     }
